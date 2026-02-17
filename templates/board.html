@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MLS Student Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background-color: #f0f2f5; min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: #1a252f; color: white; padding: 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+        .sidebar h2 { margin-top: 0; font-weight: 600; color: #4facfe; font-size: 22px; letter-spacing: 1px; }
+        nav ul { list-style: none; padding: 0; margin-top: 30px; flex-grow: 1; }
+        nav li { padding: 14px 15px; border-radius: 10px; margin-bottom: 48px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        nav li:hover, nav li.active { background: rgba(79, 172, 254, 0.1); color: #4facfe; }
+        
+        .logout-btn { color: #ff7675; text-decoration: none; font-weight: 600; cursor: pointer; border: 1px solid #ff7675; padding: 12px; border-radius: 10px; text-align: center; margin-top: auto; }
+        .logout-btn:hover { background: #ff7675; color: white; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 40px; margin-left: 260px; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); max-width: 900px; margin-bottom: 25px; }
+        h1 { margin-top: 0; font-size: 28px; color: #1a252f; }
+        
+        /* Omtalent Specific UI */
+        .stats-grid { display: flex; gap: 20px; margin: 25px 0; }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; flex: 1; border: 1px solid #eee; transition: 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+        /* Course Item */
+        .course-item { background: white; padding: 20px; border-radius: 12px; border: 1px solid #eee; margin-bottom: 15px; position: relative; }
+        .course-info { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .badge { background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        
+        /* Progress Bar */
+        .progress-container { background: #edf2f7; height: 8px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .progress-bar { background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); height: 100%; transition: width 0.5s ease; }
+
+        /* Forms */
+        .course-form { display: grid; grid-template-columns: 2fr 1fr 80px; gap: 10px; margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; font-family: inherit; }
+        button { background: #1a252f; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #2c3e50; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .layout { flex-direction: column; }
+            .stats-grid { flex-direction: column; }
+            .course-form { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+    <div class="sidebar">
+        <h2>OmTalent Portal</h2>
+        <nav>
+            <ul>
+                <li class="active" onclick="showSection('home')">🏠 Dashboard</li>
+                <li onclick="showSection('courses')">📚 My Courses</li>
+                <li onclick="showSection('profile')">👤 My Profile</li>
+            </ul>
+        </nav>
+      <a href="{{ url_for('home') }}" class="logout-btn" onclick="logout()">Log Out</a>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="home" class="section active">
+            <h1 id="welcomeHeader">Welcome Back, Student</h1>
+            <p>Track your learning progress and upcoming tasks.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="courseCount">0</h3>
+                    <p style="margin:0; font-size: 13px; color: #667;">Courses Enrolled</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avgProgress">0%</h3>
+                    <p style="margin:0; font-size: 13px; color: #667;">Average Progress</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statusText">Learning</h3>
+                    <p style="margin:0; font-size: 13px; color: #667;">Current Status</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Recently Added Course</h3>
+                <div id="recentCourse">No courses yet.</div>
+            </div>
+        </div>
+
+        <div id="courses" class="section">
+            <div class="card">
+                <h1>Enroll in New Course</h1>
+                <div class="course-form">
+                    <input type="text" id="courseInput" placeholder="Course Name (e.g. Web Development)">
+                    <select id="categoryInput">
+                        <option value="Coding">Coding</option>
+                        <option value="Design">Design</option>
+                        <option value="Business">Business</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                    <button onclick="addCourse()">Add</button>
+                </div>
+                <hr>
+                <div id="courseList"></div>
+            </div>
+        </div>
+
+        <div id="profile" class="section">
+            <div class="card">
+                <h1>Student Profile</h1>
+                <label>Full Name</label>
+                <input type="text" id="profileUsername">
+                <label>Student Email</label>
+                <input type="text" id="profileEmail" disabled>
+                <button onclick="saveProfile()"> Update Profile </button>
+                <p id="profileMsg" style="color: #48a7f5; margin-top: 10px;"></p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // 1. AUTH & INIT
+  //  if (localStorage.getItem("isLoggedIn") !== "true") {
+     //   window.location.href = "login.html"; 
+   // }
+
+    let courses = JSON.parse(localStorage.getItem("userCourses")) || [];
+    const storedUsername = "{{ student_name }}";
+    
+    document.getElementById("profileUsername").value = storedUsername;
+    document.getElementById("profileEmail").value = localStorage.getItem("userEmail") || "student@mls.edu";
+    updateWelcomeText(storedUsername);
+    renderCourses();
+
+    // 2. NAVIGATION
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('nav li').forEach(li => li.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    // 3. COURSE LOGIC
+    function addCourse() {
+        const name = document.getElementById("courseInput").value.trim();
+        const cat = document.getElementById("categoryInput").value;
+        
+        if (name) {
+            const newCourse = {
+                id: Date.now(),
+                name: name,
+                category: cat,
+                progress: 0 // New courses start at 0%
+            };
+            courses.push(newCourse);
+            saveAndRender();
+            document.getElementById("courseInput").value = "";
+        }
+    }
+
+    function updateProgress(id, val) {
+        const course = courses.find(c => c.id === id);
+        if (course) {
+            course.progress = val;
+            saveAndRender();
+        }
+    }
+
+    function deleteCourse(id) {
+        courses = courses.filter(c => c.id !== id);
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem("userCourses", JSON.stringify(courses));
+        renderCourses();
+    }
+
+    function renderCourses() {
+        const list = document.getElementById("courseList");
+        const countDisplay = document.getElementById("courseCount");
+        const avgDisplay = document.getElementById("avgProgress");
+        const recentDiv = document.getElementById("recentCourse");
+
+        list.innerHTML = courses.length === 0 ? "<p>No courses found.</p>" : "";
+        
+        let totalProgress = 0;
+
+        courses.forEach((course) => {
+            totalProgress += parseInt(course.progress);
+            list.innerHTML += `
+                <div class="course-item">
+                    <div class="course-info">
+                        <div>
+                            <span class="badge">${course.category}</span>
+                            <div style="font-weight:600; font-size: 18px; margin-top:5px;">${course.name}</div>
+                        </div>
+                        <span class="delete-btn" onclick="deleteCourse(${course.id})" style="color:#ff7675; cursor:pointer; font-size:12px;">Abandon Course</span>
+                    </div>
+                    <label style="font-size:11px;">Current Progress: ${course.progress}%</label>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${course.progress}%"></div>
+                    </div>
+                    <input type="range" min="0" max="100" value="${course.progress}" 
+                           onchange="updateProgress(${course.id}, this.value)" 
+                           style="margin:0; height:10px; cursor:pointer;">
+                </div>
+            `;
+        });
+
+        // Update Stats
+        countDisplay.innerText = courses.length;
+        avgDisplay.innerText = courses.length > 0 ? Math.round(totalProgress / courses.length) + "%" : "0%";
+        
+        // Update Recent Course
+        if (courses.length > 0) {
+            const last = courses[courses.length - 1];
+            recentDiv.innerHTML = `<strong>${last.name}</strong> (${last.category}) - ${last.progress}% complete`;
+        } else {
+            recentDiv.innerHTML = "No active courses.";
+        }
+    }
+
+    // 4. PROFILE LOGIC
+    function saveProfile() {
+        const newName = document.getElementById("profileUsername").value;
+        localStorage.setItem("username", newName);
+        updateWelcomeText(newName);
+        document.getElementById("profileMsg").innerText = "Profile updated successfully!";
+        setTimeout(() => document.getElementById("profileMsg").innerText = "", 3000);
+    }
+
+    function updateWelcomeText(name) {
+        document.getElementById("welcomeHeader").innerText = `Welcome Back, ${name} 👋`;
+    }
+
+    function logout() {
+        localStorage.removeItem("isLoggedIn");
+        
+        window.location.href = "lp.html";
+    } 
+
+   
+</script>
+
+</body>
+</html>
