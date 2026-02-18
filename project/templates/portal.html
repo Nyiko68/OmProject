@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OmTalent | Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-orange: #e27327;
+            --brand-dark: #1a1a1a;
+            --bg-light: #f8f9fa;
+            --sidebar-bg: #2b2b2b; 
+            --text-main: #1a252f;
+            --text-muted: #777;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--text-main); }
+        .layout { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { 
+            width: 260px; background-color: var(--sidebar-bg); color: white; padding: 30px 20px; 
+            display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; 
+        }
+        .sidebar-logo { text-align: center; margin-bottom: 40px; }
+        .sidebar h2 { margin: 0; font-weight: 600; color: #ffffff; font-size: 20px; }
+        .sidebar h2 span { color: var(--brand-orange); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+        nav ul { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        nav li { padding: 14px 15px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.7); }
+        nav li:hover, nav li.active { background: var(--brand-orange); color: #ffffff; }
+        
+        .logout-btn { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; margin-top: auto; }
+        .logout-btn:hover { background: var(--danger); color: white; border-color: var(--danger); }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 40px; margin-left: 260px; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s ease; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 25px; border: 1px solid #edf2f7; }
+        .stats-card { text-align: center; border-bottom: 4px solid var(--brand-orange); }
+        .stats-card h2 { font-size: 32px; margin: 0; color: var(--brand-orange); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; padding: 12px; color: var(--text-muted); font-size: 13px; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; }
+        td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        
+        .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: capitalize; }
+        .status-active { background: #e8f5e9; color: var(--success); }
+
+        button { padding: 8px 16px; border-radius: 6px; border: none; font-family: 'Poppins'; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 12px; }
+        .btn-delete { background: #fff1f0; color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+    <div class="sidebar">
+        <div class="sidebar-logo"><h2>Om Talent <span>Admin Control</span></h2></div>
+        <nav>
+            <ul>
+                <li class="active" onclick="showSection('dashboard')">📊 Dashboard</li>
+                <li onclick="showSection('users')">👥 User Management</li>
+            </ul>
+        </nav>
+        <a href="{{ url_for('logs') }}" class="logout-btn">Log Out</a>
+    </div>
+
+ <div class="main-content">
+    <section id="dashboard" class="section active">
+        <h1>Overview 👋</h1>
+        <div class="card stats-card" style="width: 300px;">
+            <p>Total Registered Students</p>
+            <h2>{{ users|length }}</h2>
+        </div>
+    </section>
+
+    <section id="users" class="section">
+        <div class="card">
+            <h1>User Management</h1>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td style="color: var(--text-muted)">{{ user.email }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td>
+                            <span class="status-pill {% if user.status == 'active' %}status-active{% else %}status-blocked{% endif %}">
+                                {{ user.status }}
+                            </span>
+                        </td>
+                       <td>
+                            <form action="{{ url_for('send_message') }}" method="POST">
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <input type="text" name="message_text" placeholder="Type message..." required>
+                            <button type="submit" style="background: var(--brand-orange);">Send</button>
+                             </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script>
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('nav li').forEach(li => li.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+</script>
+</body>
+</html>

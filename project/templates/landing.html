@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> Welcome</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; color: #1a252f; background-color: #ffffff; overflow-x: hidden; }
+        
+        /* 1. TOP RIGHT BRAND BOX */
+        .brand-corner {
+            position: fixed;
+            top: 20px;
+            left: 40px;
+            background: #1a1a1a;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            z-index: 10001;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .brand-corner b { font-size: 18px; display: block; }
+        .brand-corner span { color: #e27327; font-size: 11px; }
+
+        /* 2. LIQUID OVERLAY */
+        #liquid-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 110vh;
+            background: #e27327;
+            transform: translateY(0%);
+            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1), border-radius 0.8s ease;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes wave-motion {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-40deg); }
+        }
+
+        #welcome-text {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 20px;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Navigation & Content */
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 8%; background: #fff; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo { font-size: 24px; font-weight: 600; color: #e27327; text-decoration: none; }
+        .nav-links { list-style: none; display: flex; gap: 30px; align-items: center; }
+        .nav-links a { text-decoration: none; color: #1a252f; transition: 0.3s; }
+        .btn-login { background: #e27327; color: white !important; padding: 10px 25px; border-radius: 8px; font-weight: 600; }
+
+        .hero { display: flex; align-items: center; justify-content: space-between; padding: 80px 8%; background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%); min-height: 80vh; }
+        .hero-text h1 { font-size: 48px; line-height: 1.2; margin-bottom: 20px; }
+        .hero-text span { color: #e27327; }
+        .cta-primary { background: #e27327; color: white; padding: 15px 35px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; }
+
+        .hero-image img { max-width: 100%; height: auto; border-radius: 15px; box-shadow: 20px 20px 60px rgba(0,0,0,0.1); }
+
+        footer { background: #1a252f; color: white; padding: 50px 8%; text-align: center; }
+
+        @media (max-width: 768px) { .hero { flex-direction: column; text-align: center; } .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+
+    <div id="liquid-overlay">
+        <p id="welcome-text">Hi! Welcome to OmTalent By Omniado</p>
+    </div>
+
+    
+    <div class="brand-corner">
+        <b>OmTalent</b>0
+        <span>by Omniado</span>
+    </div>
+    <nav>
+        <a href="/logs" class="logo"> </a>
+        <ul class="nav-links">
+            <li><a href="/login" class="btn-login transition-link">Login / Register</a></li>
+        </ul>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Upgrade Your <span>Skills</span> with OmTalent</h1>
+            <p>The premium Student Portal for modern learners. Track your courses and master new talents.</p>
+            <a href="login.html" class="cta-primary transition-link">Get Started for Free</a>
+        </div>
+        <div class="hero-image">
+            <img src="{{ url_for('static', filename='good.png') }}" alt="Dashboard Preview">
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 OmTalent Educational Portal.</p>
+    </footer>
+
+    <script>
+        // ON PAGE LOAD: Animation sequence
+        window.addEventListener("DOMContentLoaded", () => {
+            const overlay = document.getElementById('liquid-overlay');
+            const welcomeText = document.getElementById('welcome-text');
+
+        // 1. Wait for 0.8 seconds (shorter delay for faster access)
+             setTimeout(() => {
+                    // 2. Start the "melting" transition
+                    overlay.style.borderRadius = "50% 50% 0 0";
+                    overlay.style.transform = "translateY(110%)";
+                    welcomeText.style.opacity = "0";
+                }, 800); // Changed from 2500 to 800
+            });
+
+        // PAGE TRANSITION: Leaving the page
+        document.querySelectorAll(".transition-link").forEach(link => {
+            link.addEventListener("click", function(e) {
+                e.preventDefault();
+                const destination = this.href;
+                const overlay = document.getElementById('liquid-overlay');
+                
+                // Reset overlay for transition out
+                overlay.style.borderRadius = "0";
+                overlay.style.transform = "translateY(0%)";
+                
+                setTimeout(() => {
+                    window.location.href = destination;
+                }, 800);
+            });
+        });
+    </script>
+</body>
+</html>
+
+

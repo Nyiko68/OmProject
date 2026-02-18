@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OmTalent | Student Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* BRAND COLORS */
+        :root {
+            --brand-orange: #e27327;
+            --brand-dark: #1a1a1a;
+            --bg-light: #ffffff;
+            --sidebar-bg: #2b2b2b; 
+            --input-border: #e0e0e0;
+            --text-main: #1a252f;
+            --text-muted: #777;
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Poppins', sans-serif; background-color: var(--bg-light); min-height: 100vh; color: var(--text-main); }
+        .layout { display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
+        .sidebar { 
+            width: 260px; 
+            background-color: var(--sidebar-bg); 
+            color: white; 
+            padding: 30px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            position: fixed; 
+            height: 100vh; 
+            z-index: 100; 
+        }
+        
+        .sidebar-logo { text-align: center; margin-bottom: 40px; }
+        .sidebar h2 { margin: 0; font-weight: 600; color: #ffffff; font-size: 20px; letter-spacing: 1px; }
+        .sidebar h2 span { color: var(--brand-orange); display: block; font-size: 11px; font-weight: normal; letter-spacing: 2px; text-transform: uppercase; }
+
+        nav ul { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+        nav li { padding: 14px 15px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.7); }
+        nav li:hover, nav li.active { background: var(--brand-orange); color: #ffffff; }
+        
+        .nav-badge { background-color: #ffffff; color: var(--brand-orange); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto; }
+        .logout-btn { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 14px; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; margin-top: auto; }
+        .logout-btn:hover { background: #e05a00; color: white; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 40px; margin-left: 260px; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); max-width: 1000px; margin-bottom: 25px; border: 1px solid #edf2f7; }
+        h1 { margin-top: 0; font-size: 26px; color: var(--brand-dark); }
+        
+        /* Stats */
+        .stats-grid { display: flex; gap: 20px; margin: 25px 0; }
+        .stat-card { background: white; padding: 25px; border-radius: 12px; flex: 1; border: 1px solid var(--brand-orange); transition: 0.3s; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .stat-card h3 { font-size: 28px; margin: 0 0 5px 0; color: var(--brand-orange); }
+        .stat-card p { margin: 0; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+            /* Study Materials UI */
+        .materials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .material-item { background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; transition: 0.3s; }
+        .material-item:hover { border-color: #e27327; transform: translateY(-3px); }
+        .material-icon { font-size: 24px; margin-bottom: 10px; display: block; }
+        .download-btn { display: inline-block; margin-top: 10px; font-size: 12px; color: #e27327; text-decoration: none; font-weight: 600; }
+
+
+        /* Course Item */
+        .course-item { background: white; padding: 25px; border-radius: 12px; border: 1px solid var(--brand-orange); margin-bottom: 15px; transition: 0.3s; cursor: pointer; }
+        .course-item:hover { box-shadow: 0 5px 20px rgba(226, 115, 39, 0.1); }
+        .badge { background: #fff3e0; color: var(--brand-orange); padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        
+        /* Static Progress Bar */
+        .progress-container { background: #f1f5f9; height: 12px; border-radius: 6px; overflow: hidden; margin: 15px 0; border: 1px solid #eee; }
+        .progress-bar { background: var(--brand-orange); height: 100%; transition: width 0.6s ease; }
+
+        .video-player { width: 100%; height: 450px; background: #000; border-radius: 12px; margin-bottom: 25px; overflow: hidden; }
+        .module-item { padding: 18px; border: 1px solid var(--brand-orange); border-radius: 10px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; transition: 0.2s; }
+        .module-item:hover { background: #fffaf5; }
+
+        .course-form { display: grid; grid-template-columns: 2fr 1fr 100px; gap: 15px; margin-bottom: 30px; }
+        input, select { width: 100%; padding: 14px; border-radius: 8px; border: 1px solid var(--input-border); outline: none; font-size: 14px; }
+        input:focus { border-color: var(--brand-orange); }
+        button { background: var(--brand-orange); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        button:hover { opacity: 0.9; }
+
+                /* Study Module UI */
+        .video-player { width: 100%; height: 400px; background: #000; border-radius: 12px; margin-bottom: 20px; }
+        .module-list { list-style: none; padding: 0; }
+        .module-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; }
+        .module-item:hover { background: #e27327; border-color: #e27327; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; height: auto; position: relative; padding: 20px; }
+            .main-content { margin-left: 0; padding: 20px; }
+            .layout { flex-direction: column; }
+            .course-form { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+    <div class="sidebar">
+        <div class="sidebar-logo">
+            <h2>Om Talent <span>by Omniado</span></h2>
+        </div>
+        <nav>
+            <ul>
+                <li class="active" onclick="showSection('home')">🏠 Dashboard</li>
+                <li onclick="showSection('courses')">📚 My Courses</li>
+                <li onclick="showSection('materials')">📄 Study Materials</li>
+                <li onclick="showSection('messages')">
+                    ✉️ Messages 
+                    <span class="nav-badge" id="msgBadge">3</span>
+                </li>
+                <li onclick="showSection('profile')">👤 My Profile</li>
+            </ul>
+        </nav>
+        <a href="javascript:void(0)" class="logout-btn" onclick="logout()">Log Out</a>
+    </div>
+
+    <div class="main-content">
+        
+        <div id="home" class="section active">
+            <h1 id="welcomeHeader">Welcome Back, {{ student_name }} 👋</h1>
+            <p style="color: var(--text-muted);">Track your learning progress and upcoming tasks.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="courseCount">0</h3>
+                    <p>Courses Enrolled</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avgProgress">0%</h3>
+                    <p>Average Progress</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statusText" style="font-size: 22px;">In Progress</h3>
+                    <p>Current Status</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top: 0; font-size: 18px;">Recently Added Course</h3>
+                <div id="recentCourse" style="color: var(--text-muted); font-size: 14px; margin-top: 10px;">No courses yet.</div>
+            </div>
+        </div>
+
+        <div id="courses" class="section">
+            <div class="card">
+                <h1>Enroll in New Course</h1>
+                <div class="course-form">
+                    <input type="text" id="courseInput" placeholder="Course Name (e.g. Web Development)">
+                    <select id="categoryInput">
+                        <option value="Coding">Coding</option>
+                        <option value="Design">Design</option>
+                        <option value="Business">Business</option>
+                    </select>
+                    <button onclick="addCourse()">Enroll</button>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+                <div id="courseList"></div>
+            </div>
+        </div>
+
+        <div id="materials" class="section">
+            <div class="card">
+                <h1>Study Materials</h1>
+                <p>Access hand-picked resources to help you master your subjects.</p>
+                <div class="materials-grid">
+                    <div class="material-item">
+                        <span class="material-icon">📕</span>
+                        <strong>Web Dev Handbook</strong>
+                        <br><a href="https://www.youtube.com/watch?v=G_nVMUtaqCk" class="download-btn" target="_blank">View Guide</a>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-icon">📘</span>
+                        <strong>Design Principles</strong>
+                        <br><a href="https://designprinciplesandpractices.com/assets/downloads/design/G14FinalProgram.pdf" class="download-btn">Download PDF</a>
+                    </div>
+                    <div class="material-item">
+                        <span class="material-icon">📗</span>
+                        <strong>Business Basics</strong>
+                        <br><a href="https://www.thedailymba.com/wp-content/uploads/2011/01/business_basics_for_entrepreneurs.pdf" class="download-btn">Download PDF</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="studyView" class="section">
+            <button onclick="showSection('courses')" style="margin-bottom: 20px; background: #eee; color: #333; padding: 8px 15px;">← Back</button>
+            <div class="card">
+                <h1 id="studyTitle">Course Name</h1>
+                <div id="videoArea" class="video-player">
+                    <iframe id="mainVideo" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <div id="moduleList"></div>
+            </div>
+        </div>
+
+        <div id="messages" class="section">
+            <div class="card">
+                <h1>Recent Messages</h1>
+                <div style="padding: 15px; border-left: 4px solid var(--brand-orange); background: #fdfdfd; border-radius: 8px;">
+                    <strong>Instructor:</strong> "Great work on your last module!"
+                </div>
+            </div>
+        </div>
+
+        <div id="profile" class="section">
+            <div class="card">
+                <h1>Student Profile</h1>
+                <div style="margin-top: 20px;">
+                    <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px;">Full Name (Permanent)</label>
+                    <input type="text" id="profileUsername" style="margin-bottom: 20px;">
+                    
+                    <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px;">ID Number</label>
+                    <input type="text" id="profileID" placeholder="Enter ID number" style="margin-bottom: 20px;">
+
+                    <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px;">Phone Number</label>
+                    <input type="tel" id="profilePhone" placeholder="Enter phone number" style="margin-bottom: 20px;">
+
+                    <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 8px;">Email (Permanent)</label>
+                    <input type="text" id="profileEmail" style="margin-bottom: 20px;">
+                    
+                    <button onclick="saveProfile()" style="width: auto; padding: 12px 40px;">Update Profile</button>
+                </div>
+                <p id="profileMsg" style="color: var(--brand-orange); margin-top: 15px; font-weight: 500;"></p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+   
+
+    // 0. STUDY DATABASE (Sample Modules)
+
+    const courseContent = {
+        "Web Development": [
+            { title: "Module 1: HTML5 Layouts & Semantics", vid: "https://www.youtube.com/embed/qz0aGYrrlhU" },
+            { title: "Module 2: CSS Flexbox & Grid Masterclass", vid: "https://www.youtube.com/embed/1Rs2ND1RYYk" },
+            { title: "Module 3: JavaScript Programming Logic", vid: "https://www.youtube.com/embed/W6NZfCO5SIk" },
+            { title: "Module 4: Responsive Design Strategies", vid: "https://www.youtube.com/embed/srvUrASNj0s" },
+            { title: "Module 5: Introduction to Git & GitHub", vid: "https://www.youtube.com/embed/RGOj5yH7evk" }
+        ],
+        "Design Principles": [
+            { title: "Module 1: Color Theory & Psychology", vid: "https://www.youtube.com/embed/L13ue2f76yc" },
+            { title: "Module 2: Typography & Visual Hierarchy", vid: "https://www.youtube.com/embed/sByzHoiYFX0" },
+            { title: "Module 3: UI vs UX Design Process", vid: "https://www.youtube.com/embed/55n66_YI_No" },
+            { title: "Module 4: Grid Systems & Composition", vid: "https://www.youtube.com/embed/G_nVMUtaqCk" },
+            { title: "Module 5: Creating Prototypes in Figma", vid: "https://www.youtube.com/embed/Gu1so3W888M" }
+        ],
+        "DevOps": [
+            { title: "Module 1: The DevOps Roadmap 2026", vid: "https://www.youtube.com/embed/MoCJEn4dybA" },
+            { title: "Module 2: Linux Command Line Basics", vid: "https://www.youtube.com/embed/sWbUDq4S6Y8" },
+            { title: "Module 3: Docker & Containers Explained", vid: "https://www.youtube.com/embed/3c-iBn73dDE" },
+            { title: "Module 4: CI/CD Pipeline Fundamentals", vid: "https://www.youtube.com/embed/scEDHsr3APg" },
+            { title: "Module 5: Infrastructure as Code (Terraform)", vid: "https://www.youtube.com/embed/7xexnwa_66A" }
+        ],
+        "Business": [
+            { title: "Module 1: Business Strategy & Growth", vid: "https://www.youtube.com/embed/3vC8n_YI_No" },
+            { title: "Module 2: Professional Communication", vid: "https://www.youtube.com/embed/Xm_YI_No" },
+            { title: "Module 3: Project Management (Agile)", vid: "https://www.youtube.com/embed/fS9fXNoo_Xo" },
+            { title: "Module 4: Financial Literacy for Beginners", vid: "https://www.youtube.com/embed/L_X0XNoo_Xo" },
+            { title: "Module 5: Leadership & Team Dynamics", vid: "https://www.youtube.com/embed/vC8n_YI_No" }
+        ],
+        "Marketing": [
+            { title: "Module 1: Digital Marketing Ecosystem", vid: "https://www.youtube.com/embed/nU-IIX3X_No" },
+            { title: "Module 2: Social Media Content Strategy", vid: "https://www.youtube.com/embed/vC8n_YI_No" },
+            { title: "Module 3: SEO & Google Analytics Basics", vid: "https://www.youtube.com/embed/n8B-G8GzN_k" },
+            { title: "Module 4: Email Marketing Automation", vid: "https://www.youtube.com/embed/X6_YI_No" },
+            { title: "Module 5: Branding & Identity Design", vid: "https://www.youtube.com/embed/vC8n_YI_No" }
+        ]
+    };
+
+
+    let courses = JSON.parse(localStorage.getItem("userCourses")) || [];
+   const storedUsername = "{{ student_name }}";
+   const storedUserID = "{{ student_id }}";
+   const storedEmail = "{{ student_email }}";
+   const storedPhone = "{{ student_num }}";
+    
+    // Init profile
+   /* document.getElementById("profileUsername").value = localStorage.getItem("username") || "{{ student_name }}";
+    document.getElementById("profileID").value = localStorage.getItem("userID") || "";
+    document.getElementById("profilePhone").value = localStorage.getItem("userPhone") || "";
+    document.getElementById("profileEmail").value = localStorage.getItem("userEmail") || "student@mls.edu"; */
+
+   window.onload = function() {
+    if(document.getElementById("profileUsername")) 
+        document.getElementById("profileUsername").value = storedUsername;
+    
+    if(document.getElementById("profileID")) 
+        document.getElementById("profileID").value = storedUserID;
+    
+    if(document.getElementById("profilePhone")) 
+        document.getElementById("profilePhone").value = storedPhone;
+    
+    if(document.getElementById("profileEmail")) 
+        document.getElementById("profileEmail").value = storedEmail;
+   }
+    
+    updateWelcomeText(storedUsername);
+    renderCourses();
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('nav li').forEach(li => li.classList.remove('active'));
+        const target = document.getElementById(sectionId);
+        if (target) target.classList.add('active');
+        const navItems = document.querySelectorAll('nav li');
+        navItems.forEach(item => {
+            if(item.innerText.toLowerCase().includes(sectionId)) item.classList.add('active');
+        });
+    }
+
+    function startStudy(courseName) {
+    showSection('studyView');
+    document.getElementById("studyTitle").innerText = courseName;
+    const list = document.getElementById("moduleList");
+    list.innerHTML = "";
+
+    // This looks for the course in your courseContent object
+    const modules = courseContent[courseName];
+
+    if (modules) {
+        modules.forEach((mod, index) => {
+            list.innerHTML += `
+                <div class="module-item" onclick="loadVideo('${mod.vid}')">
+                    <span>${index + 1}. ${mod.title}</span>
+                    <span style="color: var(--brand-orange); font-weight: 600;">▶ Play</span>
+                </div>`;
+        });
+        loadVideo(modules[0].vid);
+    } else {
+        // If the name doesn't match perfectly, show a generic message
+        list.innerHTML = "<p style='padding:20px;'>Modules for this course are coming soon!</p>";
+        document.getElementById("mainVideo").src = ""; 
+    }
+}
+
+    function loadVideo(url) { document.getElementById("mainVideo").src = url; }
+
+    function addCourse() {
+        const name = document.getElementById("courseInput").value.trim();
+        const cat = document.getElementById("categoryInput").value;
+        if (name) {
+            courses.push({ id: Date.now(), name, category: cat, progress: 15 }); // Sample progress
+            saveAndRender();
+            document.getElementById("courseInput").value = "";
+        }
+    }
+
+    function deleteCourse(id) {
+        courses = courses.filter(c => c.id !== id);
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem("userCourses", JSON.stringify(courses));
+        renderCourses();
+    }
+
+    function renderCourses() {
+        const list = document.getElementById("courseList");
+        if (!list) return;
+        list.innerHTML = courses.length === 0 ? "<p>No courses enrolled.</p>" : "";
+        let totalProgress = 0;
+        courses.forEach((course) => {
+            totalProgress += parseInt(course.progress);
+            list.innerHTML += `
+                <div class="course-item" onclick="startStudy('${course.name}')">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span class="badge">${course.category}</span>
+                            <div style="font-weight:600; font-size: 18px; margin-top:8px;">${course.name}</div>
+                        </div>
+                        <span onclick="event.stopPropagation(); deleteCourse(${course.id})" style="color:#ff7675; cursor:pointer; font-size:12px;">Leave</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${course.progress}%"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                         <small style="color: var(--brand-orange); font-weight:600;">Continue studying</small>
+                         <span style="font-size: 12px; font-weight: 600;">${course.progress}%</span>
+                    </div>
+                </div>`;
+        });
+        document.getElementById("courseCount").innerText = courses.length;
+        document.getElementById("avgProgress").innerText = courses.length > 0 ? Math.round(totalProgress / courses.length) + "%" : "0%";
+    } 
+
+    function saveProfile() {
+        const newName = document.getElementById("profileUsername").value;
+        localStorage.setItem("username", newName);
+        localStorage.setItem("userID", document.getElementById("profileID").value);
+        localStorage.setItem("userPhone", document.getElementById("profilePhone").value);
+        localStorage.setItem("userEmail", document.getElementById("profileEmail").value);
+        updateWelcomeText(newName);
+        const msg = document.getElementById("profileMsg");
+        msg.innerText = "Profile updated successfully!";
+        setTimeout(() => msg.innerText = "", 3000);
+    }
+
+    function updateWelcomeText(name) {
+        const header = document.getElementById("welcomeHeader");
+        if (header) header.innerText = `Welcome Back, ${name} 👋`;
+    }
+
+    function logout() {
+        localStorage.removeItem("isLoggedIn");
+        window.location.href = "/logs";
+    }
+</script>
+</body>
+</html>
