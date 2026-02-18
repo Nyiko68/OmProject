@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Login - EdTalent</title>
+    <style>
+        :root {
+            --brand-orange: #e27327;
+            --brand-dark: #1a1a1a;
+            --bg-cream: #e06f236b;
+            --input-border: #e0e0e0;
+            --text-muted: #777;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+        body { background-color: #fff; height: 100vh; display: flex; overflow: hidden; }
+
+        /* UX DELIGHT: "Liquid Reveal" Animation 
+           This isn't just eye candy. It masks the latency of the server request.
+           By distracting the user with a 0.8s animation, the app feels "instant" 
+           even if the backend takes a moment to process the login.
+        */
+        #liquid-reveal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 110vh;
+            background: var(--brand-orange);
+            transform: translateY(0%);
+            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1), border-radius 0.8s ease;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        /* VISUAL HIERARCHY: The "Hero" Container 
+           We use a 1.2 flex ratio to give the brand imagery slightly more weight 
+           than the form. This reinforces brand identity before the user even logs in.
+        */
+        .visual-container {
+            flex: 1.2;
+            background-color: var(--bg-cream);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            clip-path: polygon(0 0, 100% 0, 82% 100%, 0% 100%);
+        }
+
+        .logo-box {
+            background-color: var(--brand-dark);
+            padding: 20px 40px;
+            border-radius: 8px;
+            margin-bottom: 50px;
+            z-index: 2;
+            text-decoration: none;
+            display: block;
+        }
+
+        .logo-text { color: white; font-size: 32px; font-weight: bold; text-align: center; }
+        .logo-text span { color: var(--brand-orange); display: block; font-size: 14px; font-weight: normal; }
+
+        .illustration-wrapper { position: relative; width: 70%; max-width: 450px; z-index: 2; }
+        .laptop-svg { width: 100%; height: auto; filter: drop-shadow(0 20px 40px rgba(0,0,0,0.15)); }
+
+        /* INTERACTION ZONE: The Form Container 
+           White background with generous padding creates "breathing room," 
+           making the task of logging in feel less cramped and stressful.
+        */
+        .form-container { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 8%; background: white; }
+        .form-header h1 { font-size: 26px; color: var(--brand-dark); margin-bottom: 12px; }
+        .form-header p { font-size: 14px; color: var(--text-muted); margin-bottom: 35px; }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+        .input-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+        .input-group input { 
+            width: 100%; 
+            padding: 14px; 
+            padding-right: 45px; 
+            border: 1px solid var(--input-border); 
+            border-radius: 6px; 
+            font-size: 14px; 
+        }
+
+        /* ACCESSIBILITY: The Toggle Password Icon
+           Allowing users to see what they type prevents errors.
+           Preventing errors is always better than displaying error messages.
+        */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 38px; 
+            cursor: pointer;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+        }
+        .toggle-password:hover { color: var(--brand-orange); }
+        .toggle-password svg { width: 20px; height: 20px; }
+
+        .login-submit {
+            width: 100%; padding: 16px; background-color: var(--brand-orange);
+            color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;
+        }
+
+        .footer-text { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
+        .footer-text a { color: var(--brand-orange); text-decoration: none; font-weight: bold; }
+
+        @media (max-width: 1024px) {
+            .visual-container { display: none; }
+            body { overflow-y: auto; }
+            .form-container { padding: 40px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="liquid-reveal"></div>
+
+    <div class="visual-container">
+        <a href="{{ url_for('home') }}" class="logo-box transition-link">
+            <div class="logo-text">Om Talent<span>by Omniado</span></div>
+        </a>
+        <div class="illustration-wrapper">
+            <svg class="laptop-svg" viewBox="0 0 500 350" fill="none">
+                <rect x="80" y="50" width="340" height="230" rx="12" fill="#2D2E42"/>
+                <rect x="100" y="70" width="300" height="190" fill="white"/>
+                <path d="M50 280 H450 L430 310 H70 L50 280Z" fill="#1A1B2E"/>
+            </svg>
+        </div>
+    </div>    
+
+    <div class="form-container">
+        <div class="form-header">
+            <h1>Account Login</h1>
+            <p>If you are already a member you can login with your email address or username and password.</p>
+        </div>
+
+        <form id="login-form" method="POST" action="{{ url_for('login') }}">
+    <input type="text" name="fake_user" style="display:none;" aria-hidden="true">
+    <input type="password" name="fake_pass" style="display:none;" aria-hidden="true">
+
+    <div class="input-group">
+        <label>Username</label>
+        <input type="text" name="username" autocomplete="new-password" required>
+    </div>
+    
+    <div class="input-group">
+        <label>Password</label>
+        <input type="password" name="password" autocomplete="new-password" required>
+    </div>
+
+            <button type="submit" class="login-submit">Login</button>
+            
+            <p class="footer-text">Not signed up yet? <a href="{{ url_for('register') }}" class="transition-link">Sign Up Here</a></p>
+        </form>
+    </div>
+
+    <script>
+        // --- PASSWORD VISIBILITY LOGIC ---
+        // Simple toggle script to switch input type between 'password' and 'text'
+        function togglePass(inputId, el) {
+            const input = document.getElementById(inputId);
+            const isPassword = input.type === "password";
+            input.type = isPassword ? "text" : "password";
+            
+            // Swap the SVG icon to indicate state
+            el.innerHTML = isPassword 
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
+        }
+
+        // --- ANIMATION CONTROLLER ---
+        // DESIGN NOTE: Javascript is used here to orchestrate the "Liquid Reveal" 
+        // ensuring the animation plays fully before the page redirects.
+        
+        window.addEventListener("load", () => {
+            const reveal = document.getElementById('liquid-reveal');
+            setTimeout(() => {
+                reveal.style.borderRadius = "0 0 50% 50%"; 
+                reveal.style.transform = "translateY(100%)";
+            }, 50);
+        });
+
+        // Intercept clicks on transition links to play animation first
+        document.querySelectorAll(".transition-link").forEach(link => {
+            link.addEventListener("click", function(e) {
+                if (this.getAttribute('href') && this.getAttribute('href') !== '#') {
+                    e.preventDefault();
+                    const destination = this.href;
+                    const reveal = document.getElementById('liquid-reveal');
+                    
+                    // Reset curtain position
+                    reveal.style.transition = "none"; 
+                    reveal.style.transform = "translateY(-100%)";
+                    reveal.style.borderRadius = "0 0 50% 50%";
+                    
+                    // Drop the curtain
+                    setTimeout(() => {
+                        reveal.style.transition = "transform 0.8s cubic-bezier(0.85, 0, 0.15, 1), border-radius 0.8s ease";
+                        reveal.style.transform = "translateY(0%)";
+                    }, 10);
+
+                    // Navigate after animation completes
+                    setTimeout(() => {
+                        window.location.href = destination;
+                    }, 750); 
+                }
+            });
+        });
+
+        // --- FORM SUBMISSION HANDLER ---
+        const loginForm = document.getElementById('login-form');
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault(); // Stop default submit to play animation
+                
+                const reveal = document.getElementById('liquid-reveal');
+                
+                // 1. Prepare animation (Reset to top)
+                reveal.style.transition = "none"; 
+                reveal.style.transform = "translateY(-100%)";
+                reveal.style.borderRadius = "0 0 50% 50%";
+                
+                // 2. Drop the curtain
+                setTimeout(() => {
+                    reveal.style.transition = "transform 0.8s cubic-bezier(0.85, 0, 0.15, 1), border-radius 0.8s ease";
+                    reveal.style.transform = "translateY(0%)";
+                }, 10);
+
+                // 3. Submit data to Flask after animation
+                setTimeout(() => {
+                    loginForm.submit(); 
+                }, 750); 
+            });
+        }
+    </script>
+</body>
+</html>
