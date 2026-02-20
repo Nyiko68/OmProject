@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>OmTalent | Admin Dashboard</title>
+    <title>EDTalent | Admin Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -80,7 +80,7 @@
                 <li onclick="showSection('settings')">⚙️ Settings</li>
             </ul>
         </nav>
-        <a href="#" id="logoutBtn" class="logout-btn">Log Out</a>
+       <a href="/login" class="logout-btn">Log Out</a>
     </div>
 
     <div class="main-content">
@@ -93,49 +93,51 @@
                     <h2 id="totalUsers">{{ total }}</h2>
                 </div>
                 </div>
+
+                ```
+
+
+    <div class="card" style="margin-top: 30px; border-left: 4px solid var(--brand-orange);">
+        <h2>📢 Broadcast Announcement</h2>
+        <p style="color: var(--text-muted); font-size: 13px; margin-top: -10px;">
+            Publish a global alert that will appear on every student's dashboard.
+        </p>
+        
+        <form action="/admin/announce" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+            <input type="text" name="title" placeholder="Announcement Title (e.g., System Maintenance)" required style="padding: 12px; border-radius: 8px; border: 1px solid #e0e0e0; font-family: 'Poppins', sans-serif;">
+            
+            <textarea name="content" rows="3" placeholder="Type the full announcement details here..." required style="padding: 12px; border-radius: 8px; border: 1px solid #e0e0e0; font-family: 'Poppins', sans-serif; resize: vertical;"></textarea>
+            
+            <button type="submit" style="align-self: flex-start; background: var(--brand-orange); color: white; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Publish to All Students
+            </button>
+        </form>
+    </div>
+
         </section>
 
-        <section id="users" class="section">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h1>User Management</h1>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                   <tbody id="usersTable">
-    {% for user in users %}
-    <tr>
-        <td><strong>{{ user.first_name }} {{ user.surname }}</strong></td>
-        <td style="color: var(--text-muted)">{{ user.email }}</td>
-        <td>
-            <span class="status-pill status-{{ user.status }}">
-                {{ user.status }}
-            </span>
-        </td>
-        <td>
-            <button class="btn-toggle">Toggle Block</button>
-            <button class="btn-delete">Delete</button>
-        </td>
-    </tr>
-    {% endfor %}
-</tbody>
-                </table>
-            </div>
-        </section>
+   <section id="users" class="section">
+    <div class="card" style="margin-bottom: 20px;">
+    <h2>Send Message to Student</h2>
+    <form action="/admin/send_message" method="POST" style="display: flex; gap: 10px;">
+        
+        <select name="user_id" required style="padding: 10px; border-radius: 6px; border: 1px solid var(--input-border);">
+            <option value="" disabled selected>Select Student...</option>
+            
+            {% for user in users %}
+                <option value="{{ user.id }}">{{ user.first_name }} {{ user.surname }}</option>
+            {% endfor %}
+            
+        </select>
+        
+        <input type="text" name="content" placeholder="Type your message here..." style="flex: 1; padding: 10px; border-radius: 6px; border: 1px solid #e0e0e0;" required>
+        <button type="submit" style="background: var(--brand-orange); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600;">Send</button>
+    </form>
+</div>
 
-        <section id="settings" class="section">
-            <div class="card">
-                <h1>System Settings</h1>
-                <p style="color: var(--text-muted);">Configure global platform parameters here.</p>
-                </div>
-        </section>
+    <div class="card">
+        </div>
+</section>
 
     </div>
 </div>

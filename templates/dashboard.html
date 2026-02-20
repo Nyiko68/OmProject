@@ -73,19 +73,43 @@
                 <li class="active" onclick="showSection('home')">🏠 Dashboard</li>
                 <li onclick="showSection('courses')">📚 My Courses</li>
                 <li onclick="showSection('materials')">📄 Study Materials</li>
-                <li onclick="showSection('messages')">✉️ Messages <span class="nav-badge" id="msgBadge">2</span></li>
+                <li onclick="showSection('messages')">✉️ Messages <span class="nav-badge" id="msgBadge">{{ messages|length }}</span></li>
                 <li onclick="showSection('profile')">👤 My Profile</li>
             </ul>
         </nav>
-        <a href="/logs" class="logout-btn">Log Out</a>
+        <a href="/login" class="logout-btn">Log Out</a>
     </div>
 
     <div class="main-content">
-        <div id="home" class="section active">
-            <h1>Welcome Back, {{ student_name }} 👋</h1>
+       <div id="home" class="section active">
+            <h1>Welcome Back, {{ student.first_name }} 👋</h1>
             <div class="stats-grid" style="display:flex; gap:20px;">
                 <div class="card" style="flex:1; text-align:center;"><h2 id="courseCount">0</h2><p>Courses</p></div>
                 <div class="card" style="flex:1; text-align:center;"><h2 id="avgProgress">0%</h2><p>Avg Progress</p></div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <h2 style="font-size: 18px; margin-bottom: 15px;">📢 Recent Announcements</h2>
+                
+                {% if announcements %}
+                    {% for ann in announcements %}
+                        <div class="card" style="border-left: 4px solid var(--brand-orange); padding: 20px; margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                <h3 style="margin: 0; font-size: 16px;">{{ ann.title }}</h3>
+                                <span style="font-size: 11px; color: var(--text-muted); background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">
+                                    {{ ann.date_posted.strftime('%B %d, %Y') }}
+                                </span>
+                            </div>
+                            <p style="margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                                {{ ann.content }}
+                            </p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="card" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                        <p style="margin: 0; font-size: 14px;">No new announcements at this time.</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
@@ -135,27 +159,43 @@
             </div>
         </div>
 
-       <div id="messages" class="section">
+      <div id="messages" class="section">
     <div class="card">
         <h1>My Messages</h1>
+        
         {% for msg in messages %}
-        <div class="card" style="border-left: 4px solid var(--brand-orange); margin-bottom:10px;">
-            <b>Admin:</b> {{ msg.content }}
-        </div>
+            <div class="card" style="border-left: 4px solid var(--brand-orange); margin-bottom:10px;">
+                <b>Admin:</b> {{ msg.content }} <br>
+                <small style="color: var(--text-muted); font-size: 11px;">{{ msg.date_sent.strftime('%Y-%m-%d %H:%M') }}</small>
+            </div>
+        {% else %}
+            <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                You have 0 messages.
+            </p>
         {% endfor %}
+        
     </div>
 </div>
 
-        <div id="profile" class="section">
-            <div class="card">
-                <h1>Student Profile</h1>
-                <label>Name</label><input type="text" id="profileUsername" value="{{ student_name }}" style="width:100%; margin-bottom:10px;">
-                <label>ID</label><input type="text" id="profileID" value="{{ student_id }}" style="width:100%; margin-bottom:10px;">
-                <label>Phone</label><input type="text" id="profilePhone" value="{{ student_num }}" style="width:100%; margin-bottom:10px;">
-                <label>Email</label><input type="text" id="profileEmail" value="{{ student_email }}" style="width:100%; margin-bottom:20px;">
-                <button onclick="alert('Saved!')">Update Profile</button>
-            </div>
-        </div>
+       <div id="profile" class="section">
+    <div class="card">
+        <h1>Student Profile</h1>
+        
+        <label>Name</label>
+        <input type="text" id="profileUsername" value="{{ student.first_name }} {{ student.surname }}" style="width:100%; margin-bottom:10px;">
+        
+        <label>ID Number</label>
+        <input type="text" id="profileID" value="{{ student.id_number }}" style="width:100%; margin-bottom:10px;">
+        
+        <label>Phone</label>
+        <input type="text" id="profilePhone" value="{{ student.phone }}" style="width:100%; margin-bottom:10px;">
+        
+        <label>Email</label>
+        <input type="text" id="profileEmail" value="{{ student.email }}" style="width:100%; margin-bottom:20px;">
+        
+        <button onclick="alert('Saved!')">Update Profile</button>
+    </div>
+</div>
     </div>
 </div>
 
